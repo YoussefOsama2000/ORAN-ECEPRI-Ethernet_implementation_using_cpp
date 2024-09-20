@@ -5,6 +5,8 @@
 #include <vector>
 #define IFG_byte 0x07
 #define SFD 0xFB555555555555D5
+#define GENERATING_POLYNOMIAL 0x04C11DB7
+#define OTHER_THAN_PAYLOAD_BYTES 26
 class Ethernet
 {
 
@@ -24,8 +26,10 @@ public:
     void parse_config_file(const char *config_file_path);
     void print_attributes() const;
 
-    std::vector<uint8_t> generate_stream();
+    std::vector<uint8_t> generate_burst();
     std::vector<uint8_t> generate_packet(std::vector<uint8_t> payload);
+    std::vector<uint8_t> generate_crc(std::vector<uint8_t> data);
+    uint8_t buffer_empty();
     // Getters for private attributes
     float get_line_rate() const;
     uint32_t get_capture_size() const;
@@ -38,6 +42,7 @@ public:
 
     // Setter private attributes
     void set_data_to_send(const std::vector<uint8_t> &data);
+    void add_data_to_send(const std::vector<uint8_t> &data);
 
 private:
     int extract_unsigned_int(const std::string &str);

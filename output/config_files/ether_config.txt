@@ -4,5 +4,5 @@ Eth.MinNumOfIFGsPerPacket = 12 //IFG is at the end of each packet after CRC, and
 Eth.DestAddress =  0x012345678901
 Eth.SourceAddress = 0x312345678933
 Eth.MaxPacketSize  = 1500       // Packet size in bytes, includes the preamble, SoP, SRC Add, Dest Add, ether type, payload, and CRC, if the packet size exceeds this number then fragmentation should happen. 
-Eth.BurstSize = 3				// Number of ethernet packets in one burst
+Eth.BurstSize = 500				// Number of ethernet packets in one burst
 Eth.BurstPeriodicity_us = 100   // The periodicity of the burst in microseconds
