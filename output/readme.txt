@@ -1,0 +1,1 @@
+main.exe ./config_files/ether_config.txt ./config_files/bitstream.txt
