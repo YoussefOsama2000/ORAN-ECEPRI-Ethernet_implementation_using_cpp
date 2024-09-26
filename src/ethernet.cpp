@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
+#include <cmath>
 
 Ethernet::Ethernet(const char *config_file_path)
 {
@@ -17,7 +18,7 @@ void Ethernet ::parse_config_file(const char *config_file_path)
     // check if the file is accessible
     if (!config_file.is_open())
     {
-        throw std ::runtime_error("could not open ethernet config file");
+        throw std ::runtime_error("could not open config file");
     }
     // declare a variable to collect lines
     std::string line;
@@ -29,25 +30,18 @@ void Ethernet ::parse_config_file(const char *config_file_path)
     {
         line_number++;
         int equal_pos = line.find('=');
+
         if (equal_pos == -1)
         {
-            std::cout << "!WARNING : cannot read configuration in line number " << line_number << " in " << config_file_path;
             continue;
         }
         else
         {
-            line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
-            line.erase(std::remove(line.begin(), line.end(), '\t'), line.end());
-            std::stringstream stream(line);
-            std::string attribute;
-            std::string value;
-            std::getline(stream, attribute, '=');
-            attribute.erase(std::remove(attribute.begin(), attribute.end(), ' '), attribute.end());
-            std::getline(stream, value, '/');
-
-            if (attribute == "Eth.LineRate")
+            // key[0] for the attribute and key[1] for the value
+            std::string *key = get_key_values(line);
+            if (key[0] == "Eth.LineRate")
             {
-                int temp = extract_unsigned_int(value);
+                int temp = extract_unsigned_int(key[1]);
                 if (temp == -1)
                 {
                     std ::cout << "!Warning : invalid input for Eth.LineRate \n";
@@ -57,9 +51,9 @@ void Ethernet ::parse_config_file(const char *config_file_path)
                     line_rate = temp;
                 }
             }
-            else if (attribute == "Eth.CaptureSizeMs")
+            else if (key[0] == "Eth.CaptureSizeMs")
             {
-                int temp = extract_unsigned_int(value);
+                int temp = extract_unsigned_int(key[1]);
                 if (temp == -1)
                 {
                     std ::cout << "!Warning : invalid input for Eth.LineRate \n";
@@ -69,9 +63,9 @@ void Ethernet ::parse_config_file(const char *config_file_path)
                     capture_size = temp;
                 }
             }
-            else if (attribute == "Eth.MinNumOfIFGsPerPacket")
+            else if (key[0] == "Eth.MinNumOfIFGsPerPacket")
             {
-                int temp = extract_unsigned_int(value);
+                int temp = extract_unsigned_int(key[1]);
                 if (temp == -1)
                 {
                     std ::cout << "!Warning : invalid input for Eth.LineRate \n";
@@ -81,31 +75,31 @@ void Ethernet ::parse_config_file(const char *config_file_path)
                     min_num_of_IFGs_per_packet = temp;
                 }
             }
-            else if (attribute == "Eth.DestAddress")
+            else if (key[0] == "Eth.DestAddress")
             {
-                if (value[0] == '0' && (value[1] == 'x' || value[1] == 'X'))
+                if (key[1][0] == '0' && (key[1][1] == 'x' || key[1][1] == 'X'))
                 {
-                    dest_addr = extract_hex_value(value.substr(2));
+                    dest_addr = extract_hex_value(key[1].substr(2));
                 }
                 else
                 {
                     std ::cout << "!Warning : Eth.DestAddress should be in hexadecimal form example 0x333333333333 \n";
                 }
             }
-            else if (attribute == "Eth.SourceAddress")
+            else if (key[0] == "Eth.SourceAddress")
             {
-                if (value[0] == '0' && (value[1] == 'x' || value[1] == 'X'))
+                if (key[1][0] == '0' && (key[1][1] == 'x' || key[1][1] == 'X'))
                 {
-                    source_addr = extract_hex_value(value.substr(2));
+                    source_addr = extract_hex_value(key[1].substr(2));
                 }
                 else
                 {
                     std ::cout << "!Warning : Eth.DestAddress should be in hexadecimal form example 0x333333333333 \n";
                 }
             }
-            else if (attribute == "Eth.MaxPacketSize")
+            else if (key[0] == "Eth.MaxPacketSize")
             {
-                int temp = extract_unsigned_int(value);
+                int temp = extract_unsigned_int(key[1]);
                 if (temp == -1)
                 {
                     std ::cout << "!Warning : invalid input for Eth.MaxPacketSize \n";
@@ -125,12 +119,12 @@ void Ethernet ::parse_config_file(const char *config_file_path)
                         std::cout << "Caught exception: " << e.what() << std::endl;
                         exit(EXIT_FAILURE);
                     }
-                    max_packet_size = temp;
+                    set_max_packet_size(temp);
                 }
             }
-            else if (attribute == "Eth.BurstSize")
+            else if (key[0] == "Eth.BurstSize")
             {
-                int temp = extract_unsigned_int(value);
+                int temp = extract_unsigned_int(key[1]);
                 if (temp == -1)
                 {
                     std ::cout << "!Warning : invalid input for Eth.BurstSize \n";
@@ -140,9 +134,9 @@ void Ethernet ::parse_config_file(const char *config_file_path)
                     burst_size = temp;
                 }
             }
-            else if (attribute == "Eth.BurstPeriodicity_us")
+            else if (key[0] == "Eth.BurstPeriodicity_us")
             {
-                int temp = extract_unsigned_int(value);
+                int temp = extract_unsigned_int(key[1]);
                 if (temp == -1)
                 {
                     std ::cout << "!Warning : invalid input for Eth.BurstPeriodicity_us \n";
@@ -152,15 +146,10 @@ void Ethernet ::parse_config_file(const char *config_file_path)
                     burst_periodicity_us = temp;
                 }
             }
-            else
-            {
-                if (attribute.substr(0, 1) != "//")
-                    std::cout << "couldn't read line number " << line_number << " in" << config_file_path;
-            }
         }
     }
     std::cout << "------------------------------------------------------\n"
-              << "VALUES COLLECTED FROM ->      " << config_file_path << "\n";
+              << "Ethernet : VALUES COLLECTED FROM ->      " << config_file_path << "\n";
     print_attributes();
 }
 
@@ -172,8 +161,11 @@ void Ethernet::print_attributes() const
     std::cout << "Destination Address: 0x" << std::hex << dest_addr << std::dec << std::endl;
     std::cout << "Source Address: 0x" << std::hex << source_addr << std::dec << std::endl;
     std::cout << "Max Packet Size: " << max_packet_size << std::endl;
-    std::cout << "Burst Size: " << burst_size << std::endl;
-    std::cout << "Burst Periodicity (us): " << burst_periodicity_us << std::endl;
+    if (burst_mode_state == on)
+    {
+        std::cout << "Burst Size: " << burst_size << std::endl;
+        std::cout << "Burst Periodicity (us): " << burst_periodicity_us << std::endl;
+    }
 }
 
 std::vector<uint8_t> Ethernet::generate_burst()
@@ -181,11 +173,16 @@ std::vector<uint8_t> Ethernet::generate_burst()
     // Get the data size (initial size of data_to_send)
     uint64_t data_size = data_to_send.size();
 
-    // 8 (preamble), 6 (dest.addr.), 6 (source addr.), 2 (length), 4 (CRC)
-    uint32_t max_payload_size = max_packet_size - OTHER_THAN_PAYLOAD_BYTES;
-
+    uint32_t bytes_per_burst;
     // Calculate the number of bytes per burst
-    uint32_t bytes_per_burst = burst_periodicity_us * line_rate * 1000;
+    if (burst_mode_state)
+    {
+        bytes_per_burst = burst_periodicity_us * line_rate * 1000;
+    }
+    else
+    {
+        bytes_per_burst = (uint64_t)capture_size * line_rate * 1000000;
+    }
 
     // Make the burst 4-byte aligned
     bytes_per_burst += (4 - (bytes_per_burst % 4)) % 4;
@@ -205,19 +202,16 @@ std::vector<uint8_t> Ethernet::generate_burst()
     int value3 = data_to_send.size();
 
     // Loop until data_to_send is empty
-    while (!data_to_send.empty())
+    for (uint32_t i = 0; i < data_to_send.size(); i++)
     {
         packet_number++;
 
         // Determine the payload size for this iteration (max_payload_size or remaining data)
-        uint32_t payload_size = std::min(max_payload_size, static_cast<uint32_t>(data_to_send.size()));
+        uint32_t payload_size = std::min(max_payload_size, static_cast<uint32_t>(data_to_send[i].size()));
 
         // Extract the payload from data_to_send
-        std::vector<uint8_t> payload(data_to_send.begin(), data_to_send.begin() + payload_size);
-
-        // Erase the extracted payload from the front of data_to_send
-        data_to_send.erase(data_to_send.begin(), data_to_send.begin() + payload_size);
-        value3 = data_to_send.size();
+        std::vector<uint8_t> payload = data_to_send.at(i);
+        data_to_send.erase(data_to_send.begin());
 
         // Generate the packet from the payload
         generated_packet = generate_packet(payload);
@@ -228,12 +222,13 @@ std::vector<uint8_t> Ethernet::generate_burst()
         // Update the size of the current burst
         current_burst_size += generated_packet.size();
 
-        // Check if the burst size has reached the burst limit
-        if (packet_number % burst_size == 0 || data_to_send.empty())
+        if (burst_mode_state == on)
         {
-            int value = packet_number % burst_size;
-            int value2 = data_to_send.empty();
-            break;
+            // Check if the burst size has reached the burst limit
+            if (packet_number % burst_size == 0)
+            {
+                break;
+            }
         }
     }
     // Calculate the remaining space in the current burst
@@ -317,75 +312,6 @@ uint8_t Ethernet::buffer_empty()
     return data_to_send.empty();
 }
 
-std::vector<uint8_t> Ethernet::get_field_bytes(uint64_t field, size_t num_bytes)
-{
-    std::vector<uint8_t> bytes(num_bytes);
-    auto field_bytes = reinterpret_cast<uint8_t *>(&field);
-
-    // Copy bytes in reverse order to maintain expected order
-    for (size_t i = 0; i < num_bytes; ++i)
-    {
-        bytes[i] = field_bytes[num_bytes - 1 - i];
-    }
-
-    return bytes;
-}
-
-int Ethernet::extract_unsigned_int(const std::string &str)
-{
-    // Check if the string is empty
-    if (str.empty())
-    {
-        return -1;
-    }
-
-    // Check if all characters in the string are digits
-    for (char c : str)
-    {
-        if (!std::isdigit(static_cast<unsigned char>(c)))
-        {
-            return -1;
-        }
-    }
-
-    // Convert the string to an unsigned long
-    try
-    {
-        unsigned long number = std::stoul(str);
-        return static_cast<int>(number);
-    }
-    catch (const std::invalid_argument &e)
-    {
-        // If the string is not a valid number
-        return -1;
-    }
-    catch (const std::out_of_range &e)
-    {
-        // If the number is out of the range of unsigned long
-        return -1;
-    }
-}
-
-uint64_t Ethernet::extract_hex_value(const std::string &address)
-{
-    // Convert hex string to uint64_t
-    try
-    {
-        uint64_t result = std::stoull(address, nullptr, 16);
-        return result;
-    }
-    catch (const std::invalid_argument &e)
-    {
-        std::cerr << "Invalid argument: " << e.what() << std::endl;
-        return 0;
-    }
-    catch (const std::out_of_range &e)
-    {
-        std::cerr << "Out of range: " << e.what() << std::endl;
-        return 0;
-    }
-}
-
 // Getters
 float Ethernet::get_line_rate() const
 {
@@ -427,13 +353,24 @@ uint32_t Ethernet::get_burst_periodicity_us() const
     return burst_periodicity_us;
 }
 
-// Setters
-void Ethernet::set_data_to_send(const std::vector<uint8_t> &data)
+void Ethernet::set_max_packet_size(const std::uint32_t max_packet_size)
 {
-    data_to_send = data; // Assign the input vector to the private data_to_send attribute
+    this->max_packet_size = max_packet_size;
+    // 8 (preamble), 6 (dest.addr.), 6 (source addr.), 2 (length), 4 (CRC)
+    max_payload_size = max_packet_size - OTHER_THAN_PAYLOAD_BYTES;
+}
+void Ethernet::set_burst_size(const uint32_t burst_size)
+{
+    this->burst_size = burst_size;
+    burst_mode_state = on;
+}
+void Ethernet::set_burst_periodicity_us(uint32_t burst_periodicity_us)
+{
+    this->burst_periodicity_us = burst_periodicity_us;
+    burst_mode_state = on;
 }
 
-void Ethernet::add_data_to_send(const std::vector<uint8_t> &data)
+uint32_t Ethernet::get_max_payload_size() const
 {
-    data_to_send.insert(data_to_send.end(), data.begin(), data.end());
+    return max_payload_size;
 }

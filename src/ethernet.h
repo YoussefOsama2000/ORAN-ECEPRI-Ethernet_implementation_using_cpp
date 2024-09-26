@@ -3,12 +3,18 @@
 
 #include <string>
 #include <vector>
+#include "protocol.h"
 #define IFG_byte 0x07
 #define SFD 0xFB555555555555D5
 #define GENERATING_POLYNOMIAL 0x04C11DB7
 #define OTHER_THAN_PAYLOAD_BYTES 26
-class Ethernet
+class Ethernet : public Protocol
 {
+    typedef enum
+    {
+        off,
+        on
+    } state;
 
 private:
     float line_rate;
@@ -17,9 +23,10 @@ private:
     uint64_t dest_addr;
     uint64_t source_addr;
     uint32_t max_packet_size;
-    uint32_t burst_size;
+    uint32_t max_payload_size;
+    uint32_t burst_size = 0;
     uint32_t burst_periodicity_us;
-    std::vector<uint8_t> data_to_send;
+    uint8_t burst_mode_state = off;
 
 public:
     Ethernet(const char *config_file_path);
@@ -39,14 +46,11 @@ public:
     uint32_t get_max_packet_size() const;
     uint32_t get_burst_size() const;
     uint32_t get_burst_periodicity_us() const;
+    uint32_t get_max_payload_size() const;
 
-    // Setter private attributes
-    void set_data_to_send(const std::vector<uint8_t> &data);
-    void add_data_to_send(const std::vector<uint8_t> &data);
-
-private:
-    int extract_unsigned_int(const std::string &str);
-    uint64_t extract_hex_value(const std::string &address);
-    std::vector<uint8_t> get_field_bytes(uint64_t field, size_t num_bytes);
+    // setters for private attributes
+    void set_max_packet_size(const uint32_t max_packet_size);
+    void set_burst_size(const uint32_t burst_size);
+    void set_burst_periodicity_us(uint32_t burst_periodicity_us);
 };
 #endif

@@ -64,5 +64,9 @@
         "span": "cpp",
         "text_encoding": "cpp",
         "iomanip": "cpp"
-    }
+    },
+    "cSpell.words": [
+        "ecpri",
+        "seqld"
+    ]
 }

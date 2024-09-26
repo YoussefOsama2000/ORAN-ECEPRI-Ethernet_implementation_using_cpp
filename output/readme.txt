@@ -1,1 +1,1 @@
-main.exe ./config_files/ether_config.txt ./config_files/bitstream.txt
+./main.exe ./config_files/config.txt ./config_files/bitstream.txt
