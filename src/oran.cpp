@@ -261,7 +261,7 @@ std::vector<uint8_t> Oran::prepare_iq_samples(int number_of_samples)
 {
     std::vector<uint8_t> iq_samples;
     int i_sample, q_sample;
-    for (uint32_t i = 0; i < number_of_samples; ++i)
+    for (int i = 0; i < number_of_samples; ++i)
     {
         // Check if we reached the end of the file
         if (data_stream->eof())

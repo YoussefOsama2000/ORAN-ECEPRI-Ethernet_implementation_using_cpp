@@ -7,7 +7,7 @@
 #include "ecpri.h"
 #include "oran.h"
 #include <iomanip>
-#define DEBUG 1
+#define DEBUG 0
 
 void print_vector_as_hex(const std::vector<uint8_t> &data, std::ofstream *file)
 {
@@ -29,11 +29,20 @@ void print_vector_as_hex(const std::vector<uint8_t> &data, std::ofstream *file)
 int main(int argc, char *argv[])
 {
 #if DEBUG == 0
+    if (argc > 2)
+    {
+        std::cout << "too many arguments, only two arguments are needed configuration file path and output file path";
+    }
+    else if (argc < 2)
+    {
+        std::cout << "too few arguments, two arguments are needed configuration file path and output file path";
+    }
+
     char *config_path = argv[1];
     char *output_path = argv[2];
 #else
-    char *config_path = "./config_files/config.txt";
-    char *output_path = "./config_files/bitstream.txt";
+    char config_path[] = "./config_files/config.txt";
+    char output_path[] = "./config_files/bitstream.txt";
 #endif
     Ethernet ethernet(config_path);
     Ecpri ecpri(config_path);

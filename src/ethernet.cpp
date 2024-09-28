@@ -170,9 +170,6 @@ void Ethernet::print_attributes() const
 
 std::vector<uint8_t> Ethernet::generate_burst()
 {
-    // Get the data size (initial size of data_to_send)
-    uint64_t data_size = data_to_send.size();
-
     uint32_t bytes_per_burst;
     // Calculate the number of bytes per burst
     if (burst_mode_state)
@@ -207,9 +204,6 @@ std::vector<uint8_t> Ethernet::generate_burst()
         {
             packet_number = packet_number;
         }
-
-        // Determine the payload size for this iteration (max_payload_size or remaining data)
-        uint32_t payload_size = std::min(max_payload_size, static_cast<uint32_t>(data_to_send[0].size()));
 
         // Extract the payload from data_to_send
         std::vector<uint8_t> payload = data_to_send.at(0);
@@ -375,5 +369,3 @@ uint32_t Ethernet::get_max_payload_size() const
 {
     return max_payload_size;
 }
-
-
