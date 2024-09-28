@@ -92,9 +92,10 @@ std::vector<uint8_t> Ecpri::generate_header(uint16_t payload_size)
     ecpri_header.pc_id = pc_id;
     ecpri_header.subsequence_id = subsequence_id;
     ecpri_header.sequence_id = seqld;
-    for (int8_t i = 4; i >= 0; i--)
+    ecpri_header.end_bit = end_bit;
+    for (int8_t i = 7; i >= 0; i--)
     {
-        header.insert(header.begin(), ecpri_header.bytes[i]);
+        header.insert(header.end(), ecpri_header.bytes[i]);
     }
     return header;
 }

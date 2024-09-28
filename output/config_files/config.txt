@@ -6,7 +6,7 @@ Eth.SourceAddress = 0x333333333333
 Eth.MaxPacketSize  = 1500       // Packet size in bytes, includes the preamble, SoP, SRC Add, Dest Add, ether type, payload, and CRC, if the packet size exceeds this number then fragmentation should happen. 
 
 Oran.SCS  = 30 // in case control plane is implemented
-Oran.MaxNrb = 30 // from 0 to 255 and if 0 then MaxNRB is 273 
+Oran.MaxNrb = 273 // from 0 to 255 and if 0 then MaxNRB is 273 
 Oran.NrbPerPacket = 30 // from 0 to 255 and if 0 then Max NRB per packet  is 273 
 
 Oran.PayloadType = fixed // (Random or fixed).  Fixed means that the payload will be taken from a file.

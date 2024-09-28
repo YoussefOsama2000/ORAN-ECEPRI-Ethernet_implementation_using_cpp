@@ -51,10 +51,10 @@ private:
     std::string payload;
     std ::ifstream *data_stream;
     uint8_t end_of_stream = 0;
-    uint8_t current_frame = 0;
-    uint8_t current_sub_frame = 0;
-    uint8_t current_slot = 0;
-    uint8_t current_symbol = 0;
+    uint8_t current_frame = 0xff;
+    uint8_t current_sub_frame = 0xff;
+    uint8_t current_slot = 0xff;
+    uint8_t current_symbol = 0xff;
     uint8_t num_prbu = 0;
     uint8_t start_prbu = 0;
     uint32_t max_packet_size;

@@ -10,7 +10,8 @@ class Ecpri : public Protocol
     {
         struct
         {
-            uint8_t subsequence_id;
+            uint8_t subsequence_id : 7;
+            uint8_t end_bit : 1;
             uint8_t sequence_id;
             uint16_t pc_id;
             uint16_t payload;
@@ -24,7 +25,8 @@ class Ecpri : public Protocol
 
 private:
     uint8_t message_type = 0; // zero for IQ data message
-    uint8_t version = 0b0001; // 1 is default value
+    uint8_t end_bit = 1;
+    uint8_t version = 0b0000; // 0 is default value
     uint16_t pc_id = 0;
     uint8_t subsequence_id = 0; // zero as fragmentation is performed in ORAN
     uint8_t seqld = 0;          // starts with zero and increments till reaching 255 then starts over

@@ -251,7 +251,7 @@ std::vector<uint8_t> Ethernet::generate_packet(std::vector<uint8_t> payload)
     std::vector<uint8_t> source_address = get_field_bytes(source_addr, 6);
     packet.insert(packet.end(), source_address.begin(), source_address.end());
     // adding ether type
-    std::vector<uint8_t> ether_type = get_field_bytes(max_packet_size, 2);
+    std::vector<uint8_t> ether_type = get_field_bytes(payload.size(), 2);
     packet.insert(packet.end(), ether_type.begin(), ether_type.end());
     // adding payload
     packet.insert(packet.end(), payload.begin(), payload.end());

@@ -171,13 +171,16 @@ std::vector<std::vector<uint8_t>> Oran::capture_frames(uint32_t capture_time)
         // updating next prbu to send
         start_prbu = new_symbol ? 0 : start_prbu + samples_per_packet / 12;
         // symbol per slot. increments with every new symbol flag
-        current_symbol = new_symbol ? (current_symbol + 1) % 14 : current_symbol;
+        current_symbol = new_symbol ? current_symbol + 1 : current_symbol;
+        current_symbol = current_symbol % 14;
         // slot per sub frame
-        current_slot = current_symbol == 0 && new_symbol ? (current_slot + 1) % slots_per_sub_frame : current_slot;
+        current_slot = current_symbol == 0 && new_symbol ? (current_slot + 1) : current_slot;
+        current_slot = current_slot % slots_per_sub_frame;
         // counter for 1 ms sub-frames within a 10ms frame
-        current_sub_frame = current_slot == 0 && new_symbol ? (current_sub_frame + 1) % 10 : current_sub_frame;
+        current_sub_frame = current_slot == 0 && new_symbol ? (current_sub_frame + 1) : current_sub_frame;
+        current_sub_frame = current_sub_frame % 10;
         // counter for 10 ms frames
-        current_frame = current_frame == 0 && new_symbol ? current_frame + 1 : current_frame;
+        current_frame = current_sub_frame == 0 && new_symbol ? current_frame + 1 : current_frame;
 
         // if symbol size is smaller than packet size choose symbol size else use packet size
         uint32_t number_of_samples_to_send = std::min(samples_per_packet, samples_remaining_from_symbol);
@@ -208,7 +211,7 @@ std::vector<uint8_t> Oran::generate_packet(int number_of_samples)
 
     // adding payload
     std::vector<uint8_t> iq_samples = prepare_iq_samples(number_of_samples);
-    packet.insert(packet.begin(), iq_samples.begin(), iq_samples.end());
+    packet.insert(packet.end(), iq_samples.begin(), iq_samples.end());
 
     return packet;
 }
