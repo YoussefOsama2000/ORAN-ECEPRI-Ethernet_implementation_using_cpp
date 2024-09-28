@@ -199,18 +199,20 @@ std::vector<uint8_t> Ethernet::generate_burst()
     // Track the size of the current burst
     uint32_t current_burst_size = 0;
 
-    int value3 = data_to_send.size();
-
     // Loop until data_to_send is empty
-    for (uint32_t i = 0; i < data_to_send.size(); i++)
+    while (!data_to_send.empty())
     {
         packet_number++;
+        if (packet_number == 280)
+        {
+            packet_number = packet_number;
+        }
 
         // Determine the payload size for this iteration (max_payload_size or remaining data)
-        uint32_t payload_size = std::min(max_payload_size, static_cast<uint32_t>(data_to_send[i].size()));
+        uint32_t payload_size = std::min(max_payload_size, static_cast<uint32_t>(data_to_send[0].size()));
 
         // Extract the payload from data_to_send
-        std::vector<uint8_t> payload = data_to_send.at(i);
+        std::vector<uint8_t> payload = data_to_send.at(0);
         data_to_send.erase(data_to_send.begin());
 
         // Generate the packet from the payload
@@ -369,8 +371,9 @@ void Ethernet::set_burst_periodicity_us(uint32_t burst_periodicity_us)
     this->burst_periodicity_us = burst_periodicity_us;
     burst_mode_state = on;
 }
-
 uint32_t Ethernet::get_max_payload_size() const
 {
     return max_payload_size;
 }
+
+

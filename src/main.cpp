@@ -7,7 +7,7 @@
 #include "ecpri.h"
 #include "oran.h"
 #include <iomanip>
-#define DEBUG 0
+#define DEBUG 1
 
 void print_vector_as_hex(const std::vector<uint8_t> &data, std::ofstream *file)
 {
@@ -64,6 +64,5 @@ int main(int argc, char *argv[])
     }
 
     file.close(); // Close the file when done
-    std::cout << "____________________________________\n bit-stream printed in " << output_path;
-    return 0;
+    std::cout << "____________________________________\n bit-stream printed in " << output_path << std::endl;
 }
