@@ -3,9 +3,9 @@
 #include <random>
 #include <vector>
 #include <fstream>
-#include "Ethernet.h"
-#include "ecpri.h"
-#include "oran.h"
+#include "protocols/ethernet/ethernet.h"
+#include "protocols/ecpri/ecpri.h"
+#include "protocols/oran/oran.h"
 #include <iomanip>
 #define DEBUG 0
 

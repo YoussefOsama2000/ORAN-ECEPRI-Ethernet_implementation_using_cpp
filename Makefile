@@ -7,7 +7,7 @@
 CXX = g++
 
 # define any compile-time flags
-CXXFLAGS	:= -std=c++17 -Wall -Wextra -g
+CXXFLAGS	:= -std=c++17 -Wall -Wextra -g 
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -18,26 +18,26 @@ LFLAGS =
 OUTPUT	:= output
 
 # define source directory
-SRC		:= src
+SRC		:= src src/* src/*/*
 
 # define include directory
-INCLUDE	:= include
+INCLUDE	:= include 
 
 # define lib directory
 LIB		:= lib
 
 ifeq ($(OS),Windows_NT)
 MAIN	:= main.exe
-SOURCEDIRS	:= $(SRC)
-INCLUDEDIRS	:= $(INCLUDE)
+SOURCEDIRS	:= $(SRC) 
+INCLUDEDIRS	:= $(INCLUDE)  
 LIBDIRS		:= $(LIB)
 FIXPATH = $(subst /,\,$1)
 RM			:= del /q /f
 MD	:= mkdir
 else
 MAIN	:= main
-SOURCEDIRS	:= $(shell find $(SRC) -type d)
-INCLUDEDIRS	:= $(shell find $(INCLUDE) -type d)
+SOURCEDIRS	:= $(shell find $(SRC) -maxdepth 2 -type d)
+INCLUDEDIRS	:= $(shell find $(INCLUDE) -type d) 
 LIBDIRS		:= $(shell find $(LIB) -type d)
 FIXPATH = $1
 RM = rm -f
@@ -51,7 +51,7 @@ INCLUDES	:= $(patsubst %,-I%, $(INCLUDEDIRS:%/=%))
 LIBS		:= $(patsubst %,-L%, $(LIBDIRS:%/=%))
 
 # define the C source files
-SOURCES		:= $(wildcard $(patsubst %,%/*.cpp, $(SOURCEDIRS)))
+SOURCES		:= $(wildcard $(patsubst %,%/*.cpp  , $(SOURCEDIRS) ))
 
 # define the C object files
 OBJECTS		:= $(SOURCES:.cpp=.o)
